@@ -4,21 +4,22 @@ namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
-use App\Models\Course;
+use App\Models\Topic;
+use App\Models\SubTopic;
 use Filament\Resources\Form;
 use Filament\Resources\Table;
 use Filament\Resources\Resource;
-use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\CourseResource\Pages;
+use App\Filament\Resources\SubTopicResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\CourseResource\RelationManagers;
+use App\Filament\Resources\SubTopicResource\RelationManagers;
 
-class CourseResource extends Resource
+class SubTopicResource extends Resource
 {
-    protected static ?string $model = Course::class;
+    protected static ?string $model = Subtopic::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-collection';
 
@@ -26,14 +27,14 @@ class CourseResource extends Resource
     {
         return $form
             ->schema([
-                Card::make()
-                    ->schema([
-                        TextInput::make('name')
-                        ->required()
-                        ->unique(ignorable:fn($record)=>$record),
-                        TextInput::make('description')->required(),
-                    ])
-                    ->columns(2),
+                TextInput::make('name')
+                    ->required()
+                    ->unique(ignorable: fn ($record) => $record),
+
+                Select::make('topic_id') // Menambahkan select input untuk topic_id
+                    ->label('Topic')
+                      ->options(Topic::all()->pluck('id', 'id')->toArray())
+                    ->required(),
             ]);
     }
 
@@ -41,8 +42,8 @@ class CourseResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->sortable()->searchable(),
-                TextColumn::make('description')->sortable()->searchable(),
+                TextColumn::make('name')->label('Subtopic Name'),
+                TextColumn::make('Topic.id')->label('Topic ID'),
             ])
             ->filters([
                 //
@@ -66,9 +67,9 @@ class CourseResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCourses::route('/'),
-            'create' => Pages\CreateCourse::route('/create'),
-            'edit' => Pages\EditCourse::route('/{record}/edit'),
+            'index' => Pages\ListSubTopics::route('/'),
+            'create' => Pages\CreateSubTopic::route('/create'),
+            'edit' => Pages\EditSubTopic::route('/{record}/edit'),
         ];
     }
 }
